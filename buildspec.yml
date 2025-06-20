@@ -23,7 +23,12 @@ phases:
 
       - echo Running SonarQube scan...
       - export PATH=$PATH:$(pwd)/sonar-scanner/bin
-      - sonar-scanner -Dsonar.projectKey=capstone -Dsonar.sources=. -Dsonar.host.url=http://54.205.165.18 -Dsonar.login=sqp_ddc64c293ef29b2e4c988799fb7eddf64763725a
+      - sonar-scanner \
+          -Dsonar.projectKey=capstone \
+          -Dsonar.sources=. \
+          -Dsonar.host.url=http://54.205.165.18 \
+          -Dsonar.login=sqp_ddc64c293ef29b2e4c988799fb7eddf64763725a \
+          -Dsonar.java.binaries=target/classes
 
       - echo Building Docker image...
       - docker build -t $ECR_REPO:$IMAGE_TAG .
