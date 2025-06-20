@@ -1,6 +1,17 @@
 version: 0.2
 
 phases:
+  install:
+    runtime-versions:
+      java: corretto17
+    commands:
+      - echo Installing SonarScanner...
+      - curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+      - unzip sonar-scanner.zip
+      - mv sonar-scanner-* sonar-scanner
+      - export PATH=$PATH:$(pwd)/sonar-scanner/bin
+      - echo "SonarScanner installed"
+
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
@@ -14,7 +25,13 @@ phases:
       - mvn clean package
 
       - echo Running SonarQube scan...
-      - sonar-scanner -Dsonar.projectKey=capstone -Dsonar.sources=. -Dsonar.host.url=http://54.205.165.18 -Dsonar.login=sqp_ddc64c293ef29b2e4c988799fb7eddf64763725a
+      - export PATH=$PATH:$(pwd)/sonar-scanner/bin
+      - sonar-scanner \
+          -Dsonar.projectKey=capstone \
+          -Dsonar.sources=. \
+          -Dsonar.host.url=http://54.205.165.18 \
+          -Dsonar.login=sqp_ddc64c293ef29b2e4c988799fb7eddf64763725a
+
       - echo Building Docker image...
       - docker build -t $ECR_REPO:$IMAGE_TAG .
 
