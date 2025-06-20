@@ -1,0 +1,31 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 156041402660.dkr.ecr.us-east-1.amazonaws.com
+      - IMAGE_TAG=latest
+      - ECR_REPO=156041402660.dkr.ecr.us-east-1.amazonaws.com/capstone-ecr
+
+  build:
+    commands:
+      - echo Building the project with Maven...
+      - mvn clean package
+      - echo Building Docker image...
+      - docker build -t $ECR_REPO:$IMAGE_TAG .
+
+  post_build:
+    commands:
+      - echo Pushing Docker image to ECR...
+      - docker push $ECR_REPO:$IMAGE_TAG
+      - echo Preparing Kubernetes deployment files...
+      - mkdir -p k8s-out
+      - sed "s|IMAGE_PLACEHOLDER|$ECR_REPO:$IMAGE_TAG|g" k8s/deployment.yaml > k8s-out/deployment.yaml
+      - cp k8s/service.yaml k8s-out/service.yaml
+
+artifacts:
+  base-directory: k8s-out
+  files:
+    - deployment.yaml
+    - service.yaml

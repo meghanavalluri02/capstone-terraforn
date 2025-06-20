@@ -1,6 +1,6 @@
 com/business/repositories/ProductRepository.class
-com/business/repositories/UserRepository.class
 com/business/basiclogics/Logic.class
+com/business/repositories/UserRepository.class
 com/business/entities/Orders.class
 com/business/services/OrderServices.class
 com/business/services/ProductServices.class
