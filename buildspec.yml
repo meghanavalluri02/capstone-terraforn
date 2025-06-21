@@ -11,28 +11,20 @@ phases:
 
   pre_build:
     commands:
-      # Ensure you have the necessary IAM permissions for CodeBuild to perform ECR login
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 156041402660.dkr.ecr.us-east-1.amazonaws.com
-      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7) # Use commit hash for image tag
-      # IMPORTANT: Replace 156041402660.dkr.ecr.us-east-1.amazonaws.com with your actual ECR repository URI
+      - IMAGE_TAG=latest
       - ECR_REPO=156041402660.dkr.ecr.us-east-1.amazonaws.com/capstone-ecr
-      - echo "Using ECR_REPO: $ECR_REPO and IMAGE_TAG: $IMAGE_TAG"
 
   build:
     commands:
-      - echo Building the project with Maven, skipping tests...
-      # CRITICAL FIX: Skipping tests to allow the build to proceed and Docker image to be created.
-      # You MUST fix the underlying test failure in your Java application code.
-      - mvn clean package -Dmaven.test.skip=true
+      - echo Building the project with Maven...
+      - mvn clean package
 
       - echo Running SonarQube scan...
-      # Ensure SonarQube server is accessible from CodeBuild and credentials are valid.
-      # The sonar.host.url and sonar.login here are hardcoded, consider using CodeBuild environment variables for sensitive info.
+      - export PATH=$PATH:$(pwd)/sonar-scanner/bin
       - sonar-scanner -Dsonar.projectKey=capstone -Dsonar.sources=. -Dsonar.host.url=http://54.205.165.18 -Dsonar.login=sqp_ddc64c293ef29b2e4c988799fb7eddf64763725a -Dsonar.java.binaries=target/classes
-
       - echo Building Docker image...
-      # This command will now run successfully because Maven build (without tests) should pass.
       - docker build -t $ECR_REPO:$IMAGE_TAG .
 
   post_build:
@@ -41,15 +33,11 @@ phases:
       - docker push $ECR_REPO:$IMAGE_TAG
       - echo Preparing Kubernetes deployment files...
       - mkdir -p k8s-out
-      # Replace IMAGE_PLACEHOLDER with the actual ECR image URI and tag
-      # Ensure your k8s/deployment.yaml has IMAGE_PLACEHOLDER where the image should be specified
       - sed "s|IMAGE_PLACEHOLDER|$ECR_REPO:$IMAGE_TAG|g" k8s/deployment.yaml > k8s-out/deployment.yaml
       - cp k8s/service.yaml k8s-out/service.yaml
-      - echo "Artifacts created in k8s-out directory."
 
 artifacts:
-  base-directory: k8s-out # This directory will now be properly populated if previous steps succeed
+  base-directory: k8s-out
   files:
     - deployment.yaml
-    - service.yaml
-
+    - service.yaml  
