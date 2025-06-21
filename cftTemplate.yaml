@@ -16,7 +16,7 @@ Parameters:
   MyDBName:
     Type: String
     Description: "Name for the MySQL Database"
-    Default: "ecommerce"
+    Default: "database-1"
   MyDBRootUserName:
     Type: String
     Description: "Root username for the MySQL Database"
@@ -347,7 +347,7 @@ Resources:
   MyEKSCluster:
     Type: AWS::EKS::Cluster
     Properties:
-      Name: MyEKSCluster
+      Name: eks-cluster-2
       RoleArn: !GetAtt EKSClusterRole.Arn
       ResourcesVpcConfig:
         SubnetIds:
