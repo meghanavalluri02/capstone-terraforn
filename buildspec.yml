@@ -35,6 +35,11 @@ phases:
       - mkdir -p k8s-out
       - sed "s|IMAGE_PLACEHOLDER|$ECR_REPO:$IMAGE_TAG|g" k8s/deployment.yaml > k8s-out/deployment.yaml
       - cp k8s/service.yaml k8s-out/service.yaml
+      - echo Deploying to EKS...
+      - aws eks update-kubeconfig --region us-east-1 --name eks-cluster-2
+      - kubectl apply -f k8s-out/deployment.yaml
+      - kubectl apply -f k8s-out/service.yaml
+
  
 artifacts:
   base-directory: k8s-out
