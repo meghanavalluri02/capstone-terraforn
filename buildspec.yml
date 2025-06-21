@@ -3,11 +3,7 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo Installing SonarScanner CLI...
-      - curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-      - unzip sonar-scanner.zip
-      - mv sonar-scanner-* sonar-scanner
-      - export PATH=$PATH:$(pwd)/sonar-scanner/bin
+      - echo Installing dependencies...
 
   pre_build:
     commands:
@@ -19,11 +15,10 @@ phases:
   build:
     commands:
       - echo Building the project with Maven...
-      - mvn clean package
-
-      - echo Running SonarQube scan...
-      - export PATH=$PATH:$(pwd)/sonar-scanner/bin
-      - sonar-scanner -Dsonar.projectKey=capstone -Dsonar.sources=. -Dsonar.host.url=http://54.205.165.18 -Dsonar.login=sqp_ddc64c293ef29b2e4c988799fb7eddf64763725a -Dsonar.java.binaries=target/classes
+      - mvn clean verify sonar:sonar \
+          -Dsonar.projectKey=capstone-maven \
+          -Dsonar.host.url=http://54.205.165.18 \
+          -Dsonar.login=sqp_3b5cd71db2d0ac83f7a2e0e62466833603a08e69
       - echo Building Docker image...
       - docker build -t $ECR_REPO:$IMAGE_TAG .
 
@@ -40,4 +35,4 @@ artifacts:
   base-directory: k8s-out
   files:
     - deployment.yaml
-    - service.yaml  
+    - service.yaml
