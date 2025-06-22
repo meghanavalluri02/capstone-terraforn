@@ -14,12 +14,12 @@ spec:
     spec:
       containers:
         - name: capstone-app
-          image: 156041402660.dkr.ecr.us-east-1.amazonaws.com/capstone-ecr:latest
+          image: 156041402660.dkr.ecr.us-west-2.amazonaws.com/ecommerce-flask:latest
           ports:
             - containerPort: 80
           env:
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://database-1.chmewass6qvh.us-east-1.rds.amazonaws.com:3306/ecommerce
+              value: jdbc:mysql://database-1.cjsswmg2cq3c.us-west-2.rds.amazonaws.com/ecommerce
             - name: SPRING_DATASOURCE_USERNAME
               value: admin
             - name: SPRING_DATASOURCE_PASSWORD
